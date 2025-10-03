@@ -1,5 +1,6 @@
 ' Gerrard Chatbot
 ' VERSION: 2025-08-21Y
+' Dude makes mistakes and stuff, it is what it is
 
 OPTION EXPLICIT
 
@@ -579,4 +580,5 @@ RiddleData:
 DATA "What has roots that nobody sees, and is taller than trees? (A mountain.)"
 DATA "I speak without a mouth and hear without ears. (An echo.)"
 DATA "What can fill a room but takes up no space? (Light.)"
+
 
