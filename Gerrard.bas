@@ -78,7 +78,6 @@ DO
   nTok = 0
   SplitWords s$, tok$(), nTok
 
-  ' First-person feelings (highest priority)
   feel$ = ""
   IF DetectFeelingOverride%(s$, feel$) = 1 THEN
     PRINT "Bot: " + FeelingReply$(feel$)
@@ -87,11 +86,9 @@ DO
     CONTINUE DO
   ENDIF
 
-  ' Direct "about X" router
   best = CheckAbout(s$)
   IF best > 0 THEN bestScore = 3 : GOTO RespondTopic
 
-  ' Intent overrides
   ovr = IntentOverride(s$)
   IF ovr = OVR_NAME THEN
     PRINT "Bot: I'm Gerrard - a tiny intent-aware chatbot running in MMBasic on your Pico."
@@ -102,7 +99,7 @@ DO
   ELSEIF ovr = IDX_AFFINITY THEN
     best = BestAffinityTopic(tok$(), nTok)
     IF best = 0 THEN
-      ' Non-sticky neutral reply for unknown likes
+  
       PRINT "Bot: What do you like about it?"
       lastTopic% = 0
       lastReply$ = ""
@@ -113,7 +110,7 @@ DO
   ELSEIF ovr > 0 THEN
     best = ovr : bestScore = 2
   ELSE
-    ' Keyword scoring
+  
     best = -1 : bestScore = -1
     FOR t = 1 TO NTOPICS
       score(t) = ScoreTopic(tok$(), nTok, TopicKeys$(t))
@@ -125,7 +122,7 @@ DO
       AboutBooster s$, score(), best, bestScore
     ENDIF
 
-    ' Affinity booster (like/love/enjoy words in general text)
+   
     IF INSTR(" " + s$ + " ", " LIKE ") OR INSTR(" " + s$ + " ", " LOVE ") OR INSTR(" " + s$ + " ", " ENJOY ") THEN
       FOR t = 1 TO NTOPICS
         IF IsSkippableAffinityBucket(t) = 0 THEN
@@ -137,7 +134,7 @@ DO
       NEXT t
     ENDIF
 
-    ' Tie-breaks
+  
     IF bestScore > 0 THEN
       IF score(IDX_STORY)  = bestScore THEN best = IDX_STORY
       IF best <> IDX_STORY  AND score(IDX_HAIKU)  = bestScore THEN best = IDX_HAIKU
@@ -148,7 +145,6 @@ DO
     ENDIF
   ENDIF
 
-  ' Affirmation behavior (keep context warm for actual affirmations)
   IF IsAffirmation%(s$) = 1 THEN
     IF bestScore > 0 AND best <> lastTopic% THEN
       ' switch to new topic
@@ -170,7 +166,6 @@ DO
     ENDIF
   ENDIF
 
-  ' Unknown -> warm fallback
   IF bestScore <= 0 THEN
     reply$ = FriendlyFallback$()
     PRINT "Bot: " + reply$
@@ -208,7 +203,6 @@ RespondTopic:
   ENDIF
 LOOP
 
-' ---------- Utils ----------
 FUNCTION Sanitize$(txt$)
   LOCAL i%, c$, res$
   txt$ = UCASE$(txt$)
@@ -285,7 +279,6 @@ SUB AboutBooster(s$, score(), BYREF best, BYREF bestScore)
   NEXT t
 END SUB
 
-' Robust "about" matcher
 FUNCTION CheckAbout(s$)
   LOCAL ss$, leadPos%, aboutPos%, kw$, idx%
   ss$ = " " + s$ + " "
@@ -338,7 +331,6 @@ FUNCTION IntentOverride(s$)
   IF INSTR(s2$, " YOUR NAME ") OR INSTR(s2$, " DO YOU HAVE A NAME ") OR INSTR(s2$, " WHAT IS YOUR NAME ") OR INSTR(s2$, " WHO ARE YOU ") THEN IntentOverride = OVR_NAME: EXIT FUNCTION
   IF INSTR(s2$, " WHAT CAN YOU DO ") OR INSTR(s2$, " WHAT DO YOU DO ") OR INSTR(s2$, " WHAT CAN I ASK ") OR INSTR(s2$, " WHAT IS THIS ") THEN IntentOverride = OVR_CAPS: EXIT FUNCTION
 
-  ' Expanded: treat both second-person AND first-person liking as affinity
   IF INSTR(s2$, " DO YOU LIKE ") OR INSTR(s2$, " YOU LIKE ") OR INSTR(s2$, " ENJOY ") OR INSTR(s2$, " I LIKE ") OR INSTR(s2$, " I LOVE ") THEN
     IntentOverride = IDX_AFFINITY: EXIT FUNCTION
   ENDIF
@@ -532,7 +524,7 @@ FUNCTION FeelingReply$(emo$)
   END SELECT
 END FUNCTION
 
-' -------- DATA --------
+
 RespData:
 DATA "Hello!|Hi there!|Hey!"
 DATA "Running fine on-device and ready to help!|All good here in Pico land.|I am steady and working."
@@ -587,3 +579,4 @@ RiddleData:
 DATA "What has roots that nobody sees, and is taller than trees? (A mountain.)"
 DATA "I speak without a mouth and hear without ears. (An echo.)"
 DATA "What can fill a room but takes up no space? (Light.)"
+
